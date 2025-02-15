@@ -1,0 +1,51 @@
+﻿<Window x:Class="MinecraftModManager.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MinecraftModManager"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800" Closing="Window_Closing">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <TreeView x:Name="ModTreeView" Grid.Column="1" Background="SeaShell" SelectedItemChanged="ModTreeView_SelectedItemChanged">
+            <TreeView.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Delete mod" Click="DeleteItem_Click"/>
+                    <MenuItem Header="Toogle mod" Click="ToogleMod_Click"/>
+                    <MenuItem Header="Mark as">
+                        <MenuItem Header="Normal" Click="MarkAsNormalMod_Click"/>
+                        <MenuItem Header="Addon" Click="MarkAsAddonMod_Click"/>
+                        <MenuItem Header="Library" Click="MarkAsLibraryMod_Click"/>
+                    </MenuItem>
+                </ContextMenu>
+            </TreeView.ContextMenu>
+        </TreeView>
+        <Grid Grid.Column="2" Margin="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <TextBlock x:Name="ModNameTB" Text="Mod name" Margin="2" TextWrapping="WrapWithOverflow"/>
+            <TextBlock x:Name="ModDescTB" Text="Mod desc" Margin="2" TextWrapping="WrapWithOverflow" Grid.Row="1"/>
+            <TextBlock x:Name="ModOtherTB" Text="Mod other" Margin="2" TextWrapping="WrapWithOverflow" Grid.Row="2"/>
+        </Grid>
+        <Grid Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Button Grid.Row="0" VerticalAlignment="Top" Content="Update mod list" Click="Button_Click" Margin="2"/>
+            <Button Grid.Row="1" VerticalAlignment="Top" Content="Add mod" Margin="2" Click="Button_Click_1"/>
+            <Button Grid.Row="2" VerticalAlignment="Top" Content="Check lib usage" Margin="2" Click="Button_Click_2"/>
+            <TextBlock Grid.Row="3" x:Name="LibsFoundLBL" ScrollViewer.VerticalScrollBarVisibility="Visible" Margin="2" Text="Libs that are not used will be here."/>
+        </Grid>
+    </Grid>
+</Window>
