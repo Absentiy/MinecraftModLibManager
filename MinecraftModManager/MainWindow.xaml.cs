@@ -21,6 +21,8 @@ namespace MinecraftModManager
         private readonly ModReader modReader;
         private List<MinecraftMod> minecraftMods = [];
         private Dictionary<string, ModType> modMap = [];
+        private readonly OpenFileDialog ofd;
+        private readonly OpenFolderDialog ofrd;
 
         public static string DataLocation
         {
@@ -37,12 +39,37 @@ namespace MinecraftModManager
                 Directory.CreateDirectory(DataLocation);
             }
             modReader = new ModReader();
+            string[]? settings = ReadSettings();
+            if(settings is not null)
+            {
+                modReader.MinecraftPath = settings[0];
+            }
             LoadModMap();
+            ofd = new();
+            ofrd = new();
             InitializeComponent();
             UpdateModsList();
         }
 
         #region ManagerCore
+        private string[]? ReadSettings()
+        {
+            string path = Path.Combine(DataLocation, "settings.dat");
+            if (!File.Exists(path))
+            {
+                return null;
+            }
+            return File.ReadAllLines(path);
+        }
+
+        private void SaveSettings()
+        {
+            string path = Path.Combine(DataLocation, "settings.dat");
+            using StreamWriter sw = new(path);
+            sw.WriteLine(modReader.MinecraftPath);
+            sw.WriteLine("eof");
+        }
+
         private MinecraftMod? GetMod(string? id)
         {
             return minecraftMods.Find(x => x.ModID == id);
@@ -204,11 +231,13 @@ namespace MinecraftModManager
 
             foreach(MinecraftMod.ModDependency mod_dep in mod.ModDependencies)
             {
+                bool exists = ModExists(mod_dep);
                 mod_node.Items.Add(new TreeViewItem()
                 {
                     Header = mod_dep.ModId + (!mod_dep.Mandatory? " (Optional)" : string.Empty),
                     Tag = mod_dep,
-                    Foreground = ModExists(mod_dep)? Brushes.Black : Brushes.Red
+                    Foreground = exists? Brushes.Black : Brushes.Red,
+                    ToolTip = exists? "Mod is present." : "Mod is missing or integrated inside its parent mod."
                 });
             }
 
@@ -272,7 +301,6 @@ namespace MinecraftModManager
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog ofd = new();
             if (ofd.ShowDialog() == true)
             {
                 if (string.IsNullOrEmpty(ofd.FileName))
@@ -283,9 +311,15 @@ namespace MinecraftModManager
                 if (File.Exists(newfile)) return;
 
                 File.Copy(ofd.FileName, newfile, false);
-                MinecraftMod? mod = ModReader.ReadMod(newfile) ?? throw new Exception("Invalid mod file!");
-                minecraftMods.Add(mod);
+                MinecraftMod? mod = ModReader.ReadMod(newfile);
+                if(mod is null) return;
+                ModTypeSelectDialog mtsd = new();
+                if (mtsd.ShowDialog() == true)
+                {
+                    mod.Type = mtsd.SelectedType ?? ModType.Normal;
+                }
                 modMap[mod.ModID] = mod.Type;
+                minecraftMods.Add(mod);
                 UpdateView();
             }
         }
@@ -342,5 +376,14 @@ namespace MinecraftModManager
             SetSelectedModType(ModType.Library);
         }
 
+        private void SetMinecraftLocation_Click(object sender, RoutedEventArgs e)
+        {
+            ofrd.FolderName = modReader.MinecraftPath;
+            if(ofrd.ShowDialog() == true)
+            {
+                modReader.MinecraftPath = ofrd.FolderName;
+                SaveSettings();
+            }
+        }
     }
 }

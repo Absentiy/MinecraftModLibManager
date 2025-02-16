@@ -40,12 +40,14 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition/>
             </Grid.RowDefinitions>
-            <Button Grid.Row="0" VerticalAlignment="Top" Content="Update mod list" Click="Button_Click" Margin="2"/>
-            <Button Grid.Row="1" VerticalAlignment="Top" Content="Add mod" Margin="2" Click="Button_Click_1"/>
-            <Button Grid.Row="2" VerticalAlignment="Top" Content="Check lib usage" Margin="2" Click="Button_Click_2"/>
-            <TextBlock Grid.Row="3" x:Name="LibsFoundLBL" ScrollViewer.VerticalScrollBarVisibility="Visible" Margin="2" Text="Libs that are not used will be here."/>
+            <Button Grid.Row="0" VerticalAlignment="Top" Content="Set Minecraft location" Margin="2" Click="SetMinecraftLocation_Click"/>
+            <Button Grid.Row="1" VerticalAlignment="Top" Content="Update mod list" Click="Button_Click" Margin="2"/>
+            <Button Grid.Row="2" VerticalAlignment="Top" Content="Add mod" Margin="2" Click="Button_Click_1"/>
+            <Button Grid.Row="3" VerticalAlignment="Top" Content="Check lib usage" Margin="2" Click="Button_Click_2"/>
+            <TextBlock Grid.Row="4" x:Name="LibsFoundLBL" ScrollViewer.VerticalScrollBarVisibility="Visible" Margin="2" Text="Libs that are not used will be here."/>
         </Grid>
     </Grid>
 </Window>
