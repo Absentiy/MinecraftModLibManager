@@ -10,6 +10,6 @@ To use "find unused libs" feature you must mark all your mods on your own.
 It means that you must specify for each mod what it is. (Addon, Library or Normal mod)
 
 Future plans:
-- Show more info about mods
-- Improve mod adding
+- Add mod version checking
+- Make better ui
 - Maybe support mod updating
