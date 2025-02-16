@@ -188,7 +188,7 @@ namespace MinecraftModManager
             {
                 mod_node.Foreground = Brushes.Gray;
             }
-            mod_node.ToolTip = mod.Description;
+            mod_node.ToolTip = mod.Description?? "No description";
 
             bool ModExists(MinecraftMod.ModDependency dep)
             {
@@ -247,7 +247,8 @@ namespace MinecraftModManager
             if(sel_item.Tag is MinecraftMod.ModDependency mod_dep)
             {
                 ModNameTB.Text = $"Name: {mod_dep.ModId}";
-                ModDescTB.Text = $"Is mandatory: {mod_dep.Mandatory}";
+                ModDescTB.Text = $"Is mandatory: {mod_dep.Mandatory}\n" +
+                    $"Version range: {mod_dep.VersionRange}";
                 return;
             }
 
@@ -264,7 +265,7 @@ namespace MinecraftModManager
             }
 
             ModNameTB.Text = $"Name: {mod}";
-            ModDescTB.Text = $"Type: {mod.Type}\nDescription: {mod.Description}";
+            ModDescTB.Text = $"Type: {mod.Type}\nVersion: {mod.Version}\nAuthors: {mod.Authors ?? "None"}\nDescription: {mod.Description ?? "No description."}";
             ModOtherTB.Text = $"Modules: {string.Join(", ", mod.Modules)}\n" +
                 $"Dependencies: {string.Join(", ", mod.ModDependencies)}";
         }

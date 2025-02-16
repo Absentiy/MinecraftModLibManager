@@ -13,11 +13,12 @@ namespace MinecraftModLibManager
         {
             public string ModId { get; }
             public bool Mandatory { get; }
-
-            public ModDependency(string modId, bool required)
+            public string VersionRange { get; }
+            public ModDependency(string modId, bool required, string version)
             {
                 ModId = modId;
                 Mandatory = required;
+                VersionRange = version;
             }
 
             public override string ToString()
@@ -25,10 +26,17 @@ namespace MinecraftModLibManager
                 return ModId;
             }
         }
+        #region ModInternalFields
+        public string? Description { get; set; }
 
-        public string Description { get; set; }
+        public string ModID { get; }
 
-        public string ModID { get; set; }
+        public string DisplayName { get; }
+
+        public string Version { get; }
+
+        public string? Authors { get; set; }
+        #endregion
 
         public List<ModDependency> ModDependencies { get; } = [];
 
@@ -58,11 +66,12 @@ namespace MinecraftModLibManager
             }
         }
 
-        public MinecraftMod(string file, string? desc, string? modID)
+        public MinecraftMod(string file, string? modID, string? displayName, string? version)
         {
-            ModID = modID ?? throw new ArgumentNullException(nameof(modID));
             File = new FileInfo(file ?? throw new ArgumentNullException(nameof(file)));
-            Description = desc ?? "No description.";
+            ModID = modID ?? throw new ArgumentNullException(nameof(modID));
+            DisplayName = displayName ?? throw new ArgumentNullException(nameof(displayName));
+            Version = version ?? throw new ArgumentNullException(nameof(version));
         }
 
         public override string ToString()

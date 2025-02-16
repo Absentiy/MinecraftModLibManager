@@ -53,25 +53,36 @@ namespace MinecraftModLibManager
                 return null;
             }
 
+            string? GetOptionalValue(TomlTable tb, string key)
+            {
+                if (!tb.ContainsKey(key))
+                {
+                    return null;
+                }
+                return tb[key].ToString();
+            }
+
             TomlTable mod_info = Toml.ToModel(tr);
             TomlTableArray modules = (TomlTableArray)mod_info["mods"];
-            string? mod_desc = null;
-            if (modules[0].ContainsKey("description"))
-            {
-                mod_desc = modules[0]["description"].ToString();
-            }
-            MinecraftMod mod = new(mod_file, mod_desc, modules[0]["modId"].ToString())
+            MinecraftMod mod = new(mod_file, modules[0]["modId"].ToString(),
+                modules[0]["displayName"].ToString(), modules[0]["version"].ToString())
             {
                 IsDisabled = mod_file.EndsWith(".disabled"),
-                Type = ModType.Normal
+                Type = ModType.Normal,
+                Authors = GetOptionalValue(modules[0], "authors"),
+                Description = GetOptionalValue(modules[0], "description")
             };
 
             for (int i = 1; i < modules.Count; i++)
             {
                 TomlTable module_toml = modules[i];
-                MinecraftMod module = new(mod_file, module_toml["description"].ToString(), module_toml["modId"].ToString())
+                MinecraftMod module = new(mod_file, module_toml["modId"].ToString(),
+                    module_toml["displayName"].ToString(), module_toml["version"].ToString())
                 {
-                    Type = ModType.Internal
+                    IsDisabled = false,
+                    Type = ModType.Internal,
+                    Authors = GetOptionalValue(modules[0], "authors"),
+                    Description = GetOptionalValue(module_toml, "description")
                 };
                 mod.Modules.Add(module);
             }
@@ -82,34 +93,28 @@ namespace MinecraftModLibManager
             }
 
             TomlTable dep_table = (TomlTable)mod_info["dependencies"];
-            string required_mod_id, module_dep_id;
-            if (dep_table.ContainsKey(mod.ModID))
+            void ReadDependencies(MinecraftMod l_mod)
             {
-                foreach (TomlTable item in (TomlTableArray)dep_table[mod.ModID])
+                string required_mod_id;
+                if (dep_table.ContainsKey(l_mod.ModID))
                 {
-                    required_mod_id = item["modId"].ToString() ?? throw new Exception("ModId can't be null!");
-                    if (required_mod_id is "forge" or "minecraft")
+                    foreach (TomlTable l_item in (TomlTableArray)dep_table[l_mod.ModID])
                     {
-                        continue;
-                    }
-                    mod.ModDependencies.Add(new MinecraftMod.ModDependency(required_mod_id, (bool)item["mandatory"]));
-                }
-            }
-
-            for (int i = 0; i < mod.Modules.Count; i++)
-            {
-                if (dep_table.ContainsKey(mod.Modules[i].ModID))
-                {
-                    foreach (TomlTable module_deps in (TomlTableArray)dep_table[mod.Modules[i].ModID])
-                    {
-                        module_dep_id = module_deps["modId"].ToString() ?? throw new Exception("ModId can't be null!");
-                        if (module_dep_id is "forge" or "minecraft")
+                        required_mod_id = l_item["modId"].ToString() ?? throw new Exception("ModId can't be null!");
+                        if (required_mod_id is "forge" or "minecraft")
                         {
                             continue;
                         }
-                        mod.Modules[i].ModDependencies.Add(new MinecraftMod.ModDependency(module_dep_id, (bool)module_deps["mandatory"]));
+                        l_mod.ModDependencies.Add(new MinecraftMod.ModDependency(required_mod_id, (bool)l_item["mandatory"],
+                            l_item["versionRange"].ToString() ?? throw new Exception("VersionRange can't be null!")));
                     }
                 }
+            }
+
+            ReadDependencies(mod);
+            for (int i = 0; i < mod.Modules.Count; i++)
+            {
+                ReadDependencies(mod.Modules[i]);
             }
             return mod;
         }
